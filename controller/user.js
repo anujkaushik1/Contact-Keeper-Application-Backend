@@ -86,3 +86,72 @@ exports.login = async function (req, res) {
     });
   }
 };
+
+exports.getProfile = async function (req, res) {
+  try {
+    const user = await Users.findAll({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        msg: "Please enter correct credentials",
+      });
+    }
+
+    let data = user[0].dataValues;
+    const results = {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+    };
+    res.status(200).json({
+      success: true,
+      data: results,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.updateProfile = async function (req, res) {
+  try {
+    const fieldsToUpdate = {
+      name : req.body.name,
+      email : req.body.email
+    }
+    const id = req.user[0].dataValues.id;
+
+    const user = await Users.update(fieldsToUpdate, {
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        msg: "Please enter correct credentials",
+      });
+    }
+
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};

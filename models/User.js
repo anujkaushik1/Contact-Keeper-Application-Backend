@@ -1,5 +1,3 @@
-const { timeStamp } = require("console");
-
 exports.Users = function (sequelize, DataTypes) {
   const users = sequelize.define(
     "users",
@@ -20,6 +18,15 @@ exports.Users = function (sequelize, DataTypes) {
         },
       },
       password: DataTypes.STRING,
+      phoneNumber: {
+        type: DataTypes.INTEGER,
+        validate : {
+          len : {
+            args : 10,
+            msg : 'Please enter correct phone number'
+          }
+        }
+      },
     },
     {
       timestamps: false,
