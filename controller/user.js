@@ -69,10 +69,12 @@ exports.login = async function (req, res) {
     }
 
     const dbPassword = user[0].dataValues.password;
-    const isPassword = bcrypt.compare(password, dbPassword);
+    console.log(dbPassword);
+    const isPassword = await bcrypt.compare(password, dbPassword);
+    console.log(isPassword);
 
     if (!isPassword) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         error: "Invalid Credentials",
       });
@@ -124,9 +126,9 @@ exports.getProfile = async function (req, res) {
 exports.updateProfile = async function (req, res) {
   try {
     const fieldsToUpdate = {
-      name : req.body.name,
-      email : req.body.email
-    }
+      name: req.body.name,
+      email: req.body.email,
+    };
     const id = req.user[0].dataValues.id;
 
     const user = await Users.update(fieldsToUpdate, {
@@ -142,16 +144,61 @@ exports.updateProfile = async function (req, res) {
       });
     }
 
-
     res.status(200).json({
       success: true,
       data: user,
     });
-
   } catch (error) {
     res.status(400).json({
       success: false,
       error: error.message,
     });
+  }
+};
+
+exports.forgotPassword = async function (req, res) {
+  try {
+    let { email, password, confirmPassword } = req.body;
+    const user = await Users.findAll({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+     return res.status(400).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
+
+    if (confirmPassword !== password) {
+      return res.status(400).json({
+        success: false,
+        msg: "Password does not match",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    password = await bcrypt.hash(password, salt);
+
+    const updatedData = await Users.update(
+      { password },
+      {
+        where: {
+          email: email,
+        },
+      }
+    );
+    return res.status(200).json({
+      success: true,
+      data: updatedData,
+      msg: "Password changed successfully",
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success : false,
+      error : error.message
+    })
   }
 };
