@@ -1,8 +1,13 @@
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
+const cookieParser = require("cookie-parser");
 
+// Body Parser
 app.use(express.json());
+
+// Cookie Parser
+app.use(cookieParser());
 
 // Loading Env Variables
 dotenv.config({ path: "./config/config.env" });
